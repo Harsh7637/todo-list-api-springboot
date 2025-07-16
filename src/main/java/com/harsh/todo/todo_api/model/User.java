@@ -4,8 +4,11 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
+@Table(name = "users")  // ✅ Renaming the table to avoid conflict
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,5 +21,5 @@ public class User {
 
     private String password;
 
-    private String role = "USER"; // default role
+    private String role = "USER";
 }
