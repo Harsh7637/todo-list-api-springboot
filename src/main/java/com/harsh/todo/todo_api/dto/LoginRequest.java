@@ -3,8 +3,7 @@ package com.harsh.todo.todo_api.dto;
 import lombok.Data;
 
 @Data
-public class UserDTO {
-    private String name;
+public class LoginRequest {
     private String email;
     private String password;
 }

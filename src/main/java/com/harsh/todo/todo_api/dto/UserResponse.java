@@ -1,10 +1,12 @@
 package com.harsh.todo.todo_api.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-public class UserDTO {
+@AllArgsConstructor
+public class UserResponse {
+    private Long id;
     private String name;
     private String email;
-    private String password;
 }
