@@ -1,194 +1,316 @@
 # Todo List API
 
-A RESTful API built with Spring Boot that allows users to manage their to-do lists with JWT authentication.
+A simple REST API for managing todo lists, built with Spring Boot and secured with JWT authentication. Perfect for learning or as a starting point for larger projects.
 
-## 🚀 Features
+## Features
 
-- **User Authentication**: JWT-based registration and login
-- **CRUD Operations**: Complete todo management
-- **User Authorization**: Users can only access their own todos
-- **Pagination**: Efficient data retrieval with pagination support
-- **Secure**: Password hashing with BCrypt and proper authentication
-- **Database**: JPA/Hibernate with H2 (development) and PostgreSQL support
+- **User Registration & Login** - Create accounts and authenticate with JWT tokens
+- **Personal Todo Lists** - Each user can only see and manage their own todos
+- **Full CRUD Operations** - Create, read, update, and delete todos
+- **Pagination Support** - Handle large todo lists efficiently
+- **Secure by Default** - Passwords are hashed, endpoints are protected
+- **Easy Setup** - Uses H2 in-memory database, no external dependencies
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-- **Java 17+**
-- **Spring Boot 3.x**
-- **Spring Security 6**
-- **JWT (JSON Web Tokens)**
-- **JPA/Hibernate**
-- **H2 Database** (development)
-- **Maven**
+- Java 17
+- Spring Boot 3.x
+- Spring Security 6
+- JWT for authentication
+- JPA/Hibernate for database operations
+- H2 Database (in-memory)
+- Maven for dependency management
 
-## 📋 API Endpoints
+## API Endpoints
 
 ### Authentication
-- `POST /register` - Register a new user
-- `POST /login` - Login user
+- `POST /register` - Create a new user account
+- `POST /login` - Login and get JWT token
 
-### Todo Management (Requires Authentication)
-- `GET /todos` - Get paginated todos
+### Todo Management (Authentication Required)
+- `GET /todos` - Get your todos with pagination
 - `POST /todos` - Create a new todo
-- `GET /todos/{id}` - Get specific todo
-- `PUT /todos/{id}` - Update todo
-- `DELETE /todos/{id}` - Delete todo
+- `GET /todos/{id}` - Get a specific todo by ID
+- `PUT /todos/{id}` - Update an existing todo
+- `DELETE /todos/{id}` - Delete a todo
 
-## 🔧 Getting Started
+## Quick Start
 
-### Prerequisites
-- Java 17 or higher
+### What you need
+- Java 17 or newer
 - Maven 3.6+
+- Postman (for testing the API)
 
-### Installation
+### Running the project
 
-1. **Clone the repository**
+1. **Clone and navigate to the project**
 ```bash
-git clone https://github.com/YOUR_USERNAME/todo-api.git
+git clone https://github.com/Harsh7637/todo-api.git
 cd todo-api
 ```
 
-2. **Run the application**
+2. **Start the application**
 ```bash
 mvn spring-boot:run
 ```
 
-3. **Access the API**
-```
-http://localhost:8080
-```
+3. **API is now running at** `http://localhost:8080`
 
-## 🧪 Usage Examples
+The H2 database console is available at `http://localhost:8080/h2-console` if you need to check the data.
 
-### 1. Register a User
-```bash
-curl -X POST http://localhost:8080/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "John Doe",
-    "email": "john@example.com",
-    "password": "password123"
-  }'
+## Testing with Postman
+
+### Setting up your environment
+
+First, create a new environment in Postman:
+- Environment name: `Todo API`
+- Add these variables:
+    - `baseUrl` = `http://localhost:8080`
+    - `token` = (leave empty for now)
+
+### 1. Register a new user
+
+**POST** `{{baseUrl}}/register`
+
+Headers:
 ```
-
-### 2. Login
-```bash
-curl -X POST http://localhost:8080/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "john@example.com",
-    "password": "password123"
-  }'
+Content-Type: application/json
 ```
 
-### 3. Create a Todo (with token)
-```bash
-curl -X POST http://localhost:8080/todos \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -d '{
-    "title": "Buy groceries",
-    "description": "Buy milk, eggs, and bread"
-  }'
+Body:
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "password123"
+}
 ```
 
-### 4. Get Todos with Pagination
-```bash
-curl -X GET "http://localhost:8080/todos?page=1&limit=10" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+### 2. Login to get your token
+
+**POST** `{{baseUrl}}/login`
+
+Headers:
+```
+Content-Type: application/json
 ```
 
-## 🏗️ Project Structure
+Body:
+```json
+{
+  "email": "john@example.com",
+  "password": "password123"
+}
+```
+
+**Important:** After login, copy the token from the response and save it in your Postman environment variable `token`. Or add this script to the Tests tab of your login request:
+
+```javascript
+if (pm.response.code === 200) {
+    const response = pm.response.json();
+    pm.environment.set("token", response.token);
+}
+```
+
+### 3. Create your first todo
+
+**POST** `{{baseUrl}}/todos`
+
+Headers:
+```
+Content-Type: application/json
+Authorization: Bearer {{token}}
+```
+
+Body:
+```json
+{
+  "title": "Buy groceries",
+  "description": "Need to get milk, eggs, and bread from the store"
+}
+```
+
+### 4. Get all your todos
+
+**GET** `{{baseUrl}}/todos?page=0&size=10`
+
+Headers:
+```
+Authorization: Bearer {{token}}
+```
+
+### 5. Get a specific todo
+
+**GET** `{{baseUrl}}/todos/1`
+
+Headers:
+```
+Authorization: Bearer {{token}}
+```
+
+### 6. Update a todo
+
+**PUT** `{{baseUrl}}/todos/1`
+
+Headers:
+```
+Content-Type: application/json
+Authorization: Bearer {{token}}
+```
+
+Body:
+```json
+{
+  "title": "Buy groceries - Updated",
+  "description": "Get milk, eggs, bread, and some fruits too",
+  "completed": true
+}
+```
+
+### 7. Delete a todo
+
+**DELETE** `{{baseUrl}}/todos/1`
+
+Headers:
+```
+Authorization: Bearer {{token}}
+```
+
+## Project Structure
 
 ```
 src/main/java/com/harsh/todo/todo_api/
-├── config/          # Configuration classes
-├── controller/      # REST controllers
-├── dto/            # Data Transfer Objects
-├── model/          # JPA entities
+├── config/          # Security and app configuration
+├── controller/      # REST API endpoints
+├── dto/            # Request/Response objects
+├── model/          # Database entities (User, Todo)
 ├── repository/     # Data access layer
-├── security/       # Security configuration
+├── security/       # JWT and authentication logic
 └── service/        # Business logic
 ```
 
-## 🔒 Security Features
+## API Responses
 
-- JWT token-based authentication
-- Password encryption using BCrypt
-- User authorization (users can only access their own todos)
-- Protected endpoints with proper HTTP status codes
-- Input validation and error handling
-
-## 🌍 Environment Variables
-
-For production deployment, set these environment variables:
-
-```env
-DATABASE_URL=jdbc:postgresql://localhost:5432/todoapi
-DB_USERNAME=your_db_username
-DB_PASSWORD=your_db_password
-JWT_SECRET=your_super_secret_jwt_key_minimum_256_bits
-PORT=8080
+### Successful registration
+```json
+{
+  "message": "User registered successfully",
+  "userId": 1
+}
 ```
 
-## 📚 API Response Examples
+### Login response
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john@example.com"
+  }
+}
+```
 
-### Successful Todo Creation
+### Todo creation
 ```json
 {
   "id": 1,
   "title": "Buy groceries",
-  "description": "Buy milk, eggs, and bread"
+  "description": "Need to get milk, eggs, and bread from the store",
+  "completed": false,
+  "createdAt": "2025-01-20T10:30:00",
+  "updatedAt": "2025-01-20T10:30:00"
 }
 ```
 
-### Paginated Todos Response
+### Paginated todos
 ```json
 {
-  "data": [
+  "content": [
     {
       "id": 1,
       "title": "Buy groceries",
-      "description": "Buy milk, eggs, bread"
+      "description": "Need to get milk, eggs, and bread",
+      "completed": false,
+      "createdAt": "2025-01-20T10:30:00",
+      "updatedAt": "2025-01-20T10:30:00"
     }
   ],
-  "page": 1,
-  "limit": 10,
-  "total": 1
+  "page": 0,
+  "size": 10,
+  "totalElements": 1,
+  "totalPages": 1
 }
 ```
 
-### Error Response
+## Status Codes
+
+- `200` - Request successful
+- `201` - Resource created successfully
+- `400` - Bad request (check your data)
+- `401` - Unauthorized (login required or token expired)
+- `403` - Forbidden (you can't access this resource)
+- `404` - Resource not found
+- `500` - Something went wrong on the server
+
+### Error responses look like this:
 ```json
 {
-  "message": "Unauthorized"
+  "message": "Todo not found",
+  "status": 404,
+  "timestamp": "2025-01-20T10:30:00"
 }
 ```
 
-## 🚀 Deployment
+## Configuration
 
-This API can be deployed on:
-- **Railway** (recommended)
-- **Heroku**
-- **Render**
-- **AWS/Google Cloud**
+The app uses these default settings in `application.properties`:
 
-## 🤝 Contributing
+```properties
+# Server
+server.port=8080
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
+# Database (H2 in-memory)
+spring.datasource.url=jdbc:h2:mem:todoapi
+spring.datasource.username=sa
+spring.datasource.password=
+spring.h2.console.enabled=true
 
-## 📄 License
+# JWT
+jwt.secret=mySecretKey
+jwt.expiration=86400000
+```
 
-This project is licensed under the MIT License.
+## Important Notes
 
-## 👨‍💻 Author
+⚠️ **Data persistence**: Since we're using H2's in-memory database, all your data will be lost when you restart the application. This is perfect for development and testing.
 
-**Harsh** - [Your GitHub Profile](https://github.com/YOUR_USERNAME)
+⚠️ **Token expiration**: JWT tokens expire after 24 hours. You'll need to login again to get a fresh token.
 
----
+⚠️ **Security**: This setup is great for development. For production, you'd want to use a real database like PostgreSQL and stronger JWT secrets.
 
-⭐ If this project helped you, please give it a star!
+## Common Issues & Solutions
+
+**"Token expired" errors**: Login again to get a new token
+
+**"Access denied" errors**: Make sure you're including the Authorization header with a valid token
+
+**Can't see other users' todos**: This is by design! Each user can only see their own todos
+
+**Want to check the database**: Visit `http://localhost:8080/h2-console` and use the connection details from application.properties
+
+## Deployment
+
+This API works well on:
+- Railway (easiest option)
+- Heroku
+- Render
+- Any cloud platform that supports Java applications
+
+For production deployment, consider switching to PostgreSQL and updating the JWT secret.
+
+## Author
+
+Built by **Harsh** - [GitHub](https://github.com/Harsh7637)
+
+If you found this helpful, give it a star! ⭐
