@@ -1,17 +1,19 @@
-# Todo List API
+# 📝 Todo List API
 
 A simple REST API for managing todo lists, built with Spring Boot and secured with JWT authentication. Perfect for learning or as a starting point for larger projects.
 
-## Features
+**📋 Project based on:** [roadmap.sh Todo List API Project](https://roadmap.sh/projects/todo-list-api)
 
-- **User Registration & Login** - Create accounts and authenticate with JWT tokens
-- **Personal Todo Lists** - Each user can only see and manage their own todos
-- **Full CRUD Operations** - Create, read, update, and delete todos
-- **Pagination Support** - Handle large todo lists efficiently
-- **Secure by Default** - Passwords are hashed, endpoints are protected
-- **Easy Setup** - Uses H2 in-memory database, no external dependencies
+## ✨ Features
 
-## Tech Stack
+- **🔐 User Registration & Login** - Create accounts and authenticate with JWT tokens
+- **📋 Personal Todo Lists** - Each user can only see and manage their own todos
+- **🔄 Full CRUD Operations** - Create, read, update, and delete todos
+- **📄 Pagination Support** - Handle large todo lists efficiently
+- **🛡️ Secure by Default** - Passwords are hashed, endpoints are protected
+- **⚡ Easy Setup** - Uses H2 in-memory database, no external dependencies
+
+## 🛠️ Tech Stack
 
 - Java 17
 - Spring Boot 3.x
@@ -21,54 +23,54 @@ A simple REST API for managing todo lists, built with Spring Boot and secured wi
 - H2 Database (in-memory)
 - Maven for dependency management
 
-## API Endpoints
+## 🔌 API Endpoints
 
-### Authentication
+### 🔑 Authentication
 - `POST /register` - Create a new user account
 - `POST /login` - Login and get JWT token
 
-### Todo Management (Authentication Required)
+### 📝 Todo Management (Authentication Required)
 - `GET /todos` - Get your todos with pagination
 - `POST /todos` - Create a new todo
 - `GET /todos/{id}` - Get a specific todo by ID
 - `PUT /todos/{id}` - Update an existing todo
 - `DELETE /todos/{id}` - Delete a todo
 
-## Quick Start
+## 🚀 Quick Start
 
-### What you need
-- Java 17 or newer
-- Maven 3.6+
-- Postman (for testing the API)
+### 📋 What you need
+- Java 17 or newer ☕
+- Maven 3.6+ 🔧
+- Postman (for testing the API) 📮
 
-### Running the project
+### 🏃‍♂️ Running the project
 
-1. **Clone and navigate to the project**
+1. **📁 Clone and navigate to the project**
 ```bash
 git clone https://github.com/Harsh7637/todo-api.git
 cd todo-api
 ```
 
-2. **Start the application**
+2. **▶️ Start the application**
 ```bash
 mvn spring-boot:run
 ```
 
-3. **API is now running at** `http://localhost:8080`
+3. **🌐 API is now running at** `http://localhost:8080`
 
-The H2 database console is available at `http://localhost:8080/h2-console` if you need to check the data.
+The H2 database console is available at `http://localhost:8080/h2-console` if you need to check the data. 💾
 
-## Testing with Postman
+## 📮 Testing with Postman
 
-### Setting up your environment
+### ⚙️ Setting up your environment
 
 First, create a new environment in Postman:
-- Environment name: `Todo API`
+- Environment name: `Todo API` 🌍
 - Add these variables:
-    - `baseUrl` = `http://localhost:8080`
-    - `token` = (leave empty for now)
+  - `baseUrl` = `http://localhost:8080` 🔗
+  - `token` = (leave empty for now) 🎫
 
-### 1. Register a new user
+### 1. 📝 Register a new user
 
 **POST** `{{baseUrl}}/register`
 
@@ -86,7 +88,7 @@ Body:
 }
 ```
 
-### 2. Login to get your token
+### 2. 🔐 Login to get your token
 
 **POST** `{{baseUrl}}/login`
 
@@ -211,7 +213,7 @@ src/main/java/com/harsh/todo/todo_api/
 }
 ```
 
-### Todo creationā
+### Todo creation
 ```json
 {
   "id": 1,
@@ -308,6 +310,10 @@ This API works well on:
 - Any cloud platform that supports Java applications
 
 For production deployment, consider switching to PostgreSQL and updating the JWT secret.
+
+## About This Project
+
+This project implements the [Todo List API challenge from roadmap.sh](https://roadmap.sh/projects/todo-list-api), which is designed to help developers practice building REST APIs with authentication and CRUD operations.
 
 ## Author
 
