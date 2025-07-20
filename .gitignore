@@ -1,4 +1,6 @@
+# ===========================
 # Java & Maven
+# ===========================
 target/
 *.class
 *.jar
@@ -6,29 +8,36 @@ target/
 *.log
 *.tmp
 
+# ===========================
 # Maven Wrapper
+# ===========================
 .mvn/
 !**/src/main/**/target/
 !**/src/test/**/target/
 mvnw
 mvnw.cmd
 
-# Application Properties (avoid pushing secrets)
+# ===========================
+# Spring Boot Config
+# ===========================
+# Ignore property files with sensitive data
 application.properties
 application-dev.properties
 application-prod.properties
 
+# ===========================
 # IDEs
+# ===========================
 
-## IntelliJ
+## IntelliJ IDEA
 .idea/
 *.iml
 *.ipr
 
-## Eclipse / STS
+## Eclipse / Spring Tool Suite
 .apt_generated/
 .classpath
-.factorypath
+.factorypath/
 .project
 .settings/
 .springBeans/
@@ -37,7 +46,9 @@ application-prod.properties
 ## VS Code
 .vscode/
 
+# ===========================
 # NetBeans
+# ===========================
 nbproject/private/
 nbbuild/
 dist/
@@ -47,6 +58,8 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-# OS
+# ===========================
+# OS-specific
+# ===========================
 .DS_Store
 Thumbs.db
