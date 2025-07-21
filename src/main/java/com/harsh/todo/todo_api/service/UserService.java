@@ -5,9 +5,6 @@ import com.harsh.todo.todo_api.model.User;
 import com.harsh.todo.todo_api.repository.UserRepository;
 import com.harsh.todo.todo_api.security.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,13 +20,10 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private JwtService jwtService;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
     private UserDetailsService userDetailsService;
+
+    @Autowired
+    private JwtService jwtService;
 
     public String registerUser(UserDTO userDTO) {
         if (userRepository.findByEmail(userDTO.getEmail()).isPresent()) {
@@ -44,15 +38,15 @@ public class UserService {
 
         userRepository.save(user);
 
-        // Generate and return token immediately after registration
         UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
         return jwtService.generateToken(userDetails);
     }
 
-    public String loginUser(String email, String password) {
-        try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
-        } catch (AuthenticationException e) {
+    public String loginUser(String email, String rawPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
             throw new RuntimeException("Invalid credentials");
         }
 
@@ -60,3 +54,4 @@ public class UserService {
         return jwtService.generateToken(userDetails);
     }
 }
+

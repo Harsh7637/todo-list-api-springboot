@@ -13,6 +13,12 @@ A simple REST API for managing todo lists, built with Spring Boot and secured wi
 - **🛡️ Secure by Default** - Passwords are hashed, endpoints are protected
 - **⚡ Easy Setup** - Uses H2 in-memory database, no external dependencies
 
+## 📖 API Documentation with Swagger
+
+Visit `http://localhost:8080/swagger-ui.html` or `http://localhost:8080/swagger-ui/index.html` to explore and test your API with Swagger UI. All endpoints are documented with sample requests and schema annotations.
+
+> Swagger is automatically enabled via SpringDoc OpenAPI.
+
 ## 🛠️ Tech Stack
 
 - Java 17
@@ -21,6 +27,7 @@ A simple REST API for managing todo lists, built with Spring Boot and secured wi
 - JWT for authentication
 - JPA/Hibernate for database operations
 - H2 Database (in-memory)
+- SpringDoc OpenAPI (Swagger documentation)
 - Maven for dependency management
 
 ## 🔌 API Endpoints
@@ -59,6 +66,8 @@ mvn spring-boot:run
 3. **🌐 API is now running at** `http://localhost:8080`
 
 The H2 database console is available at `http://localhost:8080/h2-console` if you need to check the data. 💾
+
+**📖 Access Swagger UI at** `http://localhost:8080/swagger-ui.html` to explore the API documentation interactively.
 
 ## 📮 Testing with Postman
 
@@ -105,10 +114,10 @@ Body:
 }
 ```
 
-**Important:** After login, copy the token from the response and save it in your Postman environment variable `token`. Or add this script to the Tests tab of your login request:
+**⚠️ Important:** After registration or login, **the server returns only a JWT token**. Copy this token from the response and save it in your Postman environment variable `token`. Or add this script to the Tests tab of your login/register request:
 
 ```javascript
-if (pm.response.code === 200) {
+if (pm.response.code === 200 || pm.response.code === 201) {
     const response = pm.response.json();
     pm.environment.set("token", response.token);
 }
@@ -196,20 +205,14 @@ src/main/java/com/harsh/todo/todo_api/
 ### Successful registration
 ```json
 {
-  "message": "User registered successfully",
-  "userId": 1
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
 
 ### Login response
 ```json
 {
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "user": {
-    "id": 1,
-    "name": "John Doe",
-    "email": "john@example.com"
-  }
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
 
@@ -281,6 +284,68 @@ spring.h2.console.enabled=true
 # JWT
 jwt.secret=mySecretKey
 jwt.expiration=86400000
+
+# Swagger/OpenAPI
+springdoc.api-docs.path=/api-docs
+springdoc.swagger-ui.path=/swagger-ui.html
+```
+
+## Adding Swagger to Your Project
+
+To add Swagger documentation to your Todo API, you need to:
+
+### 1. Add SpringDoc OpenAPI dependency to your `pom.xml`:
+
+```xml
+<dependency>
+    <groupId>org.springdoc</groupId>
+    <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+    <version>2.2.0</version>
+</dependency>
+```
+
+### 2. Create OpenAPI configuration (optional but recommended):
+
+```java
+@Configuration
+public class OpenAPIConfig {
+
+    @Bean
+    public OpenAPI customOpenAPI() {
+        return new OpenAPI()
+                .info(new Info()
+                        .title("Todo List API")
+                        .version("1.0")
+                        .description("A simple REST API for managing todo lists with JWT authentication"))
+                .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
+                .components(new Components()
+                        .addSecuritySchemes("Bearer Authentication", createAPIKeyScheme()));
+    }
+
+    private SecurityScheme createAPIKeyScheme() {
+        return new SecurityScheme().type(SecurityScheme.Type.HTTP)
+                .bearerFormat("JWT")
+                .scheme("bearer");
+    }
+}
+```
+
+### 3. Add annotations to your controllers (examples):
+
+```java
+@RestController
+@RequestMapping("/todos")
+@Tag(name = "Todo Management", description = "Operations related to todo management")
+public class TodoController {
+
+    @PostMapping
+    @Operation(summary = "Create a new todo", description = "Creates a new todo item for the authenticated user")
+    @ApiResponse(responseCode = "201", description = "Todo created successfully")
+    @ApiResponse(responseCode = "400", description = "Invalid request data")
+    public ResponseEntity<Todo> createTodo(@Valid @RequestBody CreateTodoRequest request) {
+        // implementation
+    }
+}
 ```
 
 ## Important Notes
@@ -288,6 +353,8 @@ jwt.expiration=86400000
 ⚠️ **Data persistence**: Since we're using H2's in-memory database, all your data will be lost when you restart the application. This is perfect for development and testing.
 
 ⚠️ **Token expiration**: JWT tokens expire after 24 hours. You'll need to login again to get a fresh token.
+
+⚠️ **Token-only authentication**: Both registration and login endpoints return **only a JWT token**. No user details are returned in the response for security reasons.
 
 ⚠️ **Security**: This setup is great for development. For production, you'd want to use a real database like PostgreSQL and stronger JWT secrets.
 
@@ -300,6 +367,8 @@ jwt.expiration=86400000
 **Can't see other users' todos**: This is by design! Each user can only see their own todos
 
 **Want to check the database**: Visit `http://localhost:8080/h2-console` and use the connection details from application.properties
+
+**Swagger UI not loading**: Make sure the SpringDoc dependency is added and the application is running
 
 ## Deployment
 
