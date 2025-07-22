@@ -11,11 +11,14 @@ A simple REST API for managing todo lists, built with Spring Boot and secured wi
 - **🔄 Full CRUD Operations** - Create, read, update, and delete todos
 - **📄 Pagination Support** - Handle large todo lists efficiently
 - **🛡️ Secure by Default** - Passwords are hashed, endpoints are protected
-- **⚡ Easy Setup** - Uses H2 in-memory database, no external dependencies
+- **☁️ Production Ready** - Deployed on AWS Elastic Beanstalk with PostgreSQL
+- **⚡ Easy Setup** - Works locally with H2 or in production with PostgreSQL
 
 ## 📖 API Documentation with Swagger
 
-Visit `http://localhost:8080/swagger-ui.html` or `http://localhost:8080/swagger-ui/index.html` to explore and test your API with Swagger UI. All endpoints are documented with sample requests and schema annotations.
+**🌐 Live API Documentation:** [http://todo-list-api-env.eba-kmgsg9ty.eu-north-1.elasticbeanstalk.com/swagger-ui/index.html](http://todo-list-api-env.eba-kmgsg9ty.eu-north-1.elasticbeanstalk.com/swagger-ui/index.html)
+
+For local development, visit `http://localhost:5000/swagger-ui.html` or `http://localhost:5000/swagger-ui/index.html` to explore and test your API with Swagger UI. All endpoints are documented with sample requests and schema annotations.
 
 > Swagger is automatically enabled via SpringDoc OpenAPI.
 
@@ -26,8 +29,10 @@ Visit `http://localhost:8080/swagger-ui.html` or `http://localhost:8080/swagger-
 - Spring Security 6
 - JWT for authentication
 - JPA/Hibernate for database operations
-- H2 Database (in-memory)
+- **Production**: PostgreSQL on AWS RDS
+- **Development**: H2 Database (in-memory)
 - SpringDoc OpenAPI (Swagger documentation)
+- **Deployment**: AWS Elastic Beanstalk
 - Maven for dependency management
 
 ## 🔌 API Endpoints
@@ -63,20 +68,34 @@ cd todo-api
 mvn spring-boot:run
 ```
 
-3. **🌐 API is now running at** `http://localhost:8080`
+3. **🌐 API is now running at** `http://localhost:5000`
 
-The H2 database console is available at `http://localhost:8080/h2-console` if you need to check the data. 💾
+The H2 database console is available at `http://localhost:5000/h2-console` if you need to check the data during local development. 💾
 
-**📖 Access Swagger UI at** `http://localhost:8080/swagger-ui.html` to explore the API documentation interactively.
+**📖 Access Swagger UI at** `http://localhost:5000/swagger-ui.html` to explore the API documentation interactively.
+
+## 🌐 Live Production API
+
+The API is deployed and running live on AWS Elastic Beanstalk:
+- **🔗 Live API Base URL**: `http://todo-list-api-env.eba-kmgsg9ty.eu-north-1.elasticbeanstalk.com`
+- **📖 Live Swagger Documentation**: [http://todo-list-api-env.eba-kmgsg9ty.eu-north-1.elasticbeanstalk.com/swagger-ui/index.html](http://todo-list-api-env.eba-kmgsg9ty.eu-north-1.elasticbeanstalk.com/swagger-ui/index.html)
+
+You can test the live API directly using the production URLs!
 
 ## 📮 Testing with Postman
 
 ### ⚙️ Setting up your environment
 
 First, create a new environment in Postman:
-- Environment name: `Todo API` 🌍
+- Environment name: `Todo API Local` 🌍
 - Add these variables:
-  - `baseUrl` = `http://localhost:8080` 🔗
+  - `baseUrl` = `http://localhost:5000` 🔗
+  - `token` = (leave empty for now) 🎫
+
+**For testing the live production API, create another environment:**
+- Environment name: `Todo API Production` 🌍
+- Add these variables:
+  - `baseUrl` = `http://todo-list-api-env.eba-kmgsg9ty.eu-north-1.elasticbeanstalk.com` 🔗
   - `token` = (leave empty for now) 🎫
 
 ### 1. 📝 Register a new user
@@ -269,13 +288,15 @@ src/main/java/com/harsh/todo/todo_api/
 
 ## Configuration
 
-The app uses these default settings in `application.properties`:
+### Local Development Configuration
+
+The app uses these settings in `application.properties` for local development:
 
 ```properties
 # Server
-server.port=8080
+server.port=5000
 
-# Database (H2 in-memory)
+# Database (H2 in-memory for local development)
 spring.datasource.url=jdbc:h2:mem:todoapi
 spring.datasource.username=sa
 spring.datasource.password=
@@ -289,6 +310,90 @@ jwt.expiration=86400000
 springdoc.api-docs.path=/api-docs
 springdoc.swagger-ui.path=/swagger-ui.html
 ```
+
+### AWS Production Configuration
+
+For production deployment on AWS Elastic Beanstalk with PostgreSQL:
+
+```properties
+# === Server Config ===
+server.port=5000
+
+# === PostgreSQL Config for AWS Deployment ===
+# These values are provided by Elastic Beanstalk environment variables
+spring.datasource.url=${JDBC_DATABASE_URL}
+spring.datasource.username=${JDBC_DATABASE_USERNAME}
+spring.datasource.password=${JDBC_DATABASE_PASSWORD}
+
+# === JPA Settings ===
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+# === H2 Disabled ===
+spring.h2.console.enabled=false
+
+# === JWT ===
+# The secret can be overridden by an environment variable in AWS
+jwt.secret=${JWT_SECRET:mySecretKey}
+jwt.expiration=86400000
+
+# === Swagger/OpenAPI ===
+springdoc.api-docs.path=/api-docs
+springdoc.swagger-ui.path=/swagger-ui.html
+```
+
+## AWS Deployment Guide
+
+This API is successfully deployed on AWS using Elastic Beanstalk with PostgreSQL RDS. Here's how you can deploy your own instance:
+
+### Prerequisites for AWS Deployment
+
+- AWS Account with appropriate permissions
+- AWS CLI installed and configured
+- PostgreSQL dependency in your `pom.xml`:
+
+```xml
+<dependency>
+    <groupId>org.postgresql</groupId>
+    <artifactId>postgresql</artifactId>
+    <scope>runtime</scope>
+</dependency>
+```
+
+### Steps to Deploy on AWS Elastic Beanstalk
+
+1. **Create RDS PostgreSQL Database**
+  - Go to AWS RDS Console
+  - Create a new PostgreSQL database
+  - Note down the endpoint, username, and password
+
+2. **Prepare Your Application**
+  - Update your `application.properties` with the AWS configuration shown above
+  - Create a JAR file: `mvn clean package`
+
+3. **Deploy to Elastic Beanstalk**
+  - Create a new Elastic Beanstalk application
+  - Choose Java platform
+  - Upload your JAR file
+  - Configure environment variables:
+    - `JDBC_DATABASE_URL`: Your RDS endpoint URL
+    - `JDBC_DATABASE_USERNAME`: Your database username
+    - `JDBC_DATABASE_PASSWORD`: Your database password
+    - `JWT_SECRET`: A strong JWT secret for production
+
+4. **Test Your Deployment**
+  - Access your Swagger UI at: `http://your-app-url.elasticbeanstalk.com/swagger-ui/index.html`
+  - Test the API endpoints
+
+### Environment Variables Required
+
+Set these environment variables in your Elastic Beanstalk configuration:
+
+- `JDBC_DATABASE_URL`: `jdbc:postgresql://your-rds-endpoint:5432/your-database-name`
+- `JDBC_DATABASE_USERNAME`: Your PostgreSQL username
+- `JDBC_DATABASE_PASSWORD`: Your PostgreSQL password
+- `JWT_SECRET`: A secure secret key for JWT token generation
 
 ## Adding Swagger to Your Project
 
@@ -350,13 +455,17 @@ public class TodoController {
 
 ## Important Notes
 
-⚠️ **Data persistence**: Since we're using H2's in-memory database, all your data will be lost when you restart the application. This is perfect for development and testing.
+⚠️ **Data persistence**:
+- **Local Development**: Uses H2 in-memory database, data is lost on restart
+- **Production**: Uses PostgreSQL on AWS RDS, data persists permanently
 
 ⚠️ **Token expiration**: JWT tokens expire after 24 hours. You'll need to login again to get a fresh token.
 
 ⚠️ **Token-only authentication**: Both registration and login endpoints return **only a JWT token**. No user details are returned in the response for security reasons.
 
-⚠️ **Security**: This setup is great for development. For production, you'd want to use a real database like PostgreSQL and stronger JWT secrets.
+⚠️ **Environment-specific behavior**: The app automatically switches between H2 (local) and PostgreSQL (AWS) based on environment variables.
+
+⚠️ **Security**: Production deployment uses environment variables for sensitive data like database credentials and JWT secrets.
 
 ## Common Issues & Solutions
 
@@ -366,19 +475,33 @@ public class TodoController {
 
 **Can't see other users' todos**: This is by design! Each user can only see their own todos
 
-**Want to check the database**: Visit `http://localhost:8080/h2-console` and use the connection details from application.properties
+**Want to check the database**:
+- **Local**: Visit `http://localhost:5000/h2-console` and use the connection details from application.properties
+- **Production**: Access your AWS RDS PostgreSQL database through AWS console or database clients
 
 **Swagger UI not loading**: Make sure the SpringDoc dependency is added and the application is running
 
+**AWS deployment issues**: Check your environment variables are properly set in Elastic Beanstalk configuration
+
 ## Deployment
 
-This API works well on:
-- Railway (easiest option)
+This API is **currently live and deployed** on AWS Elastic Beanstalk! 🚀
+
+**🌐 Live Production API**: [http://todo-list-api-env.eba-kmgsg9ty.eu-north-1.elasticbeanstalk.com/swagger-ui/index.html](http://todo-list-api-env.eba-kmgsg9ty.eu-north-1.elasticbeanstalk.com/swagger-ui/index.html)
+
+### Other deployment options:
+- **AWS Elastic Beanstalk** ⭐ (currently deployed here)
+- Railway
 - Heroku
 - Render
 - Any cloud platform that supports Java applications
 
-For production deployment, consider switching to PostgreSQL and updating the JWT secret.
+### Production Features:
+- ✅ PostgreSQL database on AWS RDS
+- ✅ Environment-based configuration
+- ✅ Secure JWT token handling
+- ✅ Auto-scaling capabilities
+- ✅ Professional-grade hosting
 
 ## About This Project
 

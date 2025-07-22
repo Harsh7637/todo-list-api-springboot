@@ -1,4 +1,4 @@
-package com.harsh.todo.todo_api; // Make sure this package name matches your project
+package com.harsh.todo.todo_api.controller; // Make sure this package name matches your project
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

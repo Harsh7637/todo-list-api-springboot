@@ -29,13 +29,17 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // Allow public access to registration, login, and Swagger endpoints
+                        // Allow public access to registration, login, and all documentation endpoints
                         .requestMatchers(
                                 "/register",
                                 "/login",
+                                "/api-docs",
+
+                                "/api-docs/**",
+                                "/v3/api-docs",
                                 "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html"
+                                "/swagger-ui.html",
+                                "/swagger-ui/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
